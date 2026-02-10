@@ -1,0 +1,99 @@
+# Custom .gitignore for AI-CRAFT-2.0 project
+
+servers/temp-web-sockets-serevr/audio.raw
+hand_landmarker.task
+*/sample.m4a
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+.venv
+venv/
+ENV/
+env/
+.env
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+vendor/
+
+# PlatformIO
+.pio/
+.vscode/
+.pioenvs/
+.piolibdeps/
+.clang_complete
+.gcc-flags.json
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+
+# OS
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Model files (optional - uncomment if you don't want to track large models)
+# *.task
+# *.tflite
+# *.pb
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Temporary files
+*.tmp
+*.temp
+.cache/

@@ -1,0 +1,14 @@
+{
+  "TURN_ON": [
+    "turn on the {appliance}",
+    "switch on the {appliance}",
+    "start the {appliance}",
+    "power on the {appliance}"
+  ],
+  "TURN_OFF": [
+    "turn off the {appliance}",
+    "switch off the {appliance}",
+    "stop the {appliance}",
+    "power off the {appliance}"
+  ]
+}
