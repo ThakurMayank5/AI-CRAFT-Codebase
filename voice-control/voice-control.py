@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
 
 
-    result = whisper_model.transcribe("sample.m4a", language="en")
+    result = whisper_model.transcribe("output.wav", language="en")
 
     text=result["text"]
     # text="Turn off the fan"

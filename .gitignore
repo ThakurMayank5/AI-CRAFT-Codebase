@@ -1,8 +1,10 @@
 # Custom .gitignore for AI-CRAFT-2.0 project
 
 servers/temp-web-sockets-serevr/audio.raw
+servers/temp-web-sockets-serevr/output.wav
 hand_landmarker.task
 */sample.m4a
+*/output.wav
 
 # Python
 __pycache__/

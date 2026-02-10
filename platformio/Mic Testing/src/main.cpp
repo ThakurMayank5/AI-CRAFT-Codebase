@@ -34,12 +34,11 @@ void micTask(void *parameter);
 
 #define bufferCnt 10
 #define bufferLen 1024
-int16_t sBuffer[bufferLen];
 
 const char *ssid = "OnePlus Nord 3 5G";
 const char *password = "12345678";
 
-const char *websocket_server_host = "10.104.195.99";
+const char *websocket_server_host = "10.27.78.151";
 const uint16_t websocket_server_port = 42069; // <WEBSOCKET_SERVER_PORT>
 
 using namespace websockets;
@@ -70,30 +69,57 @@ void onEventsCallback(WebsocketsEvent event, String data)
 
 void i2s_install()
 {
-    // Set up I2S Processor configuration
+
     const i2s_config_t i2s_config = {
-        .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_RX),
-        .sample_rate = 44100,
-        //.sample_rate = 16000,
-        .bits_per_sample = i2s_bits_per_sample_t(16),
+        .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
+        .sample_rate = 16000,
+        .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
         .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-        .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_STAND_I2S),
-        .intr_alloc_flags = 0,
-        .dma_buf_count = bufferCnt,
-        .dma_buf_len = bufferLen,
-        .use_apll = false};
+        .communication_format = I2S_COMM_FORMAT_I2S,
+        .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+        .dma_buf_count = 8,
+        .dma_buf_len = 256,
+        .use_apll = false,
+    };
+
+    /**
+     * This was code used before
+     */
+
+    // Set up I2S Processor configuration
+    // const i2s_config_t i2s_config = {
+    //     .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_RX),
+    //     .sample_rate = 44100,
+    //     //.sample_rate = 16000,
+    //     .bits_per_sample = i2s_bits_per_sample_t(16),
+    //     .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+    //     .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_STAND_I2S),
+    //     .intr_alloc_flags = 0,
+    //     .dma_buf_count = bufferCnt,
+    //     .dma_buf_len = bufferLen,
+    //     .use_apll = false};
 
     i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);
 }
 
 void i2s_setpin()
 {
-    // Set I2S pin configuration
     const i2s_pin_config_t pin_config = {
-        .bck_io_num = I2S_SCK,
-        .ws_io_num = I2S_WS,
-        .data_out_num = -1,
-        .data_in_num = I2S_SD};
+        .bck_io_num = 26,
+        .ws_io_num = 25,
+        .data_out_num = I2S_PIN_NO_CHANGE,
+        .data_in_num = 33};
+
+    /**
+     * This was code used before
+     */
+
+    // Set I2S pin configuration
+    // const i2s_pin_config_t pin_config = {
+    //     .bck_io_num = I2S_SCK,
+    //     .ws_io_num = I2S_WS,
+    //     .data_out_num = -1,
+    //     .data_in_num = I2S_SD};
 
     i2s_set_pin(I2S_PORT, &pin_config);
 }
@@ -135,6 +161,8 @@ void connectWSServer()
     Serial.println("Websocket Connected!");
 }
 
+int32_t audioBuffer[bufferLen];
+
 void micTask(void *parameter)
 {
 
@@ -143,12 +171,37 @@ void micTask(void *parameter)
     i2s_start(I2S_PORT);
 
     size_t bytesIn = 0;
+
     while (1)
     {
-        esp_err_t result = i2s_read(I2S_PORT, &sBuffer, bufferLen, &bytesIn, portMAX_DELAY);
+        esp_err_t result = i2s_read(
+            I2S_PORT,
+            audioBuffer,
+            bufferLen * sizeof(int32_t),
+            &bytesIn,
+            portMAX_DELAY);
+
         if (result == ESP_OK && isWebSocketConnected)
         {
-            client.sendBinary((const char *)sBuffer, bytesIn);
+            client.sendBinary((const char *)audioBuffer, bytesIn);
         }
     }
 }
+
+// void micTask(void *parameter)
+// {
+
+//     i2s_install();
+//     i2s_setpin();
+//     i2s_start(I2S_PORT);
+
+//     size_t bytesIn = 0;
+//     while (1)
+//     {
+//         esp_err_t result = i2s_read(I2S_PORT, &sBuffer, bufferLen, &bytesIn, portMAX_DELAY);
+//         if (result == ESP_OK && isWebSocketConnected)
+//         {
+//             client.sendBinary((const char *)sBuffer, bytesIn);
+//         }
+//     }
+// }
