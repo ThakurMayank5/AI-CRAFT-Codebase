@@ -35,6 +35,16 @@ void micTask(void *parameter);
 #define bufferCnt 10
 #define bufferLen 1024
 
+#define LIGHT_PIN 2
+#define AC_PIN 4
+#define HEATER_PIN 5
+#define FAN_PIN 18
+
+bool lightState = false;
+bool acState = false;
+bool heaterState = false;
+bool fanState = false;
+
 const char *ssid = "OnePlus Nord 3 5G";
 const char *password = "12345678";
 
@@ -44,6 +54,69 @@ const uint16_t websocket_server_port = 42069; // <WEBSOCKET_SERVER_PORT>
 using namespace websockets;
 WebsocketsClient client;
 bool isWebSocketConnected;
+
+void onMessageCallback(WebsocketsMessage message)
+{
+    String msg = message.data();
+    Serial.print("Received: ");
+    Serial.println(msg);
+
+    if (msg == "light:true")
+    {
+        Serial.println("Turning Light ON");
+        lightState = true;
+        digitalWrite(LIGHT_PIN, HIGH);
+    }
+
+    else if (msg == "light:false")
+    {
+        Serial.println("Turning Light OFF");
+        lightState = false;
+        digitalWrite(LIGHT_PIN, LOW);
+    }
+
+    else if (msg == "ac:true")
+    {
+        Serial.println("Turning AC ON");
+        acState = true;
+        digitalWrite(AC_PIN, HIGH);
+    }
+
+    else if (msg == "ac:false")
+    {
+        Serial.println("Turning AC OFF");
+        acState = false;
+        digitalWrite(AC_PIN, LOW);
+    }
+
+    else if (msg == "heater:true")
+    {
+        Serial.println("Turning Heater ON");
+        heaterState = true;
+        digitalWrite(HEATER_PIN, HIGH);
+    }
+
+    else if (msg == "heater:false")
+    {
+        Serial.println("Turning Heater OFF");
+        heaterState = false;
+        digitalWrite(HEATER_PIN, LOW);
+    }
+
+    else if (msg == "fan:true")
+    {
+        Serial.println("Turning Fan ON");
+        fanState = true;
+        digitalWrite(FAN_PIN, HIGH);
+    }
+
+    else if (msg == "fan:false")
+    {
+        Serial.println("Turning Fan OFF");
+        fanState = false;
+        digitalWrite(FAN_PIN, LOW);
+    }
+}
 
 void onEventsCallback(WebsocketsEvent event, String data)
 {
@@ -74,30 +147,13 @@ void i2s_install()
         .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
         .sample_rate = 44100,
         .bits_per_sample = I2S_BITS_PER_SAMPLE_32BIT,
-        .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+        .channel_format = I2S_CHANNEL_FMT_ONLY_RIGHT,
         .communication_format = I2S_COMM_FORMAT_I2S,
         .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
         .dma_buf_count = 8,
         .dma_buf_len = 256,
         .use_apll = false,
     };
-
-    /**
-     * This was code used before
-     */
-
-    // Set up I2S Processor configuration
-    // const i2s_config_t i2s_config = {
-    //     .mode = i2s_mode_t(I2S_MODE_MASTER | I2S_MODE_RX),
-    //     .sample_rate = 44100,
-    //     //.sample_rate = 16000,
-    //     .bits_per_sample = i2s_bits_per_sample_t(16),
-    //     .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-    //     .communication_format = i2s_comm_format_t(I2S_COMM_FORMAT_STAND_I2S),
-    //     .intr_alloc_flags = 0,
-    //     .dma_buf_count = bufferCnt,
-    //     .dma_buf_len = bufferLen,
-    //     .use_apll = false};
 
     i2s_driver_install(I2S_PORT, &i2s_config, 0, NULL);
 }
@@ -110,17 +166,6 @@ void i2s_setpin()
         .data_out_num = I2S_PIN_NO_CHANGE,
         .data_in_num = 33};
 
-    /**
-     * This was code used before
-     */
-
-    // Set I2S pin configuration
-    // const i2s_pin_config_t pin_config = {
-    //     .bck_io_num = I2S_SCK,
-    //     .ws_io_num = I2S_WS,
-    //     .data_out_num = -1,
-    //     .data_in_num = I2S_SD};
-
     i2s_set_pin(I2S_PORT, &pin_config);
 }
 
@@ -131,10 +176,16 @@ void setup()
     connectWiFi();
     connectWSServer();
     xTaskCreatePinnedToCore(micTask, "micTask", 10000, NULL, 1, NULL, 1);
+
+    pinMode(LIGHT_PIN, OUTPUT);
+    pinMode(AC_PIN, OUTPUT);
+    pinMode(HEATER_PIN, OUTPUT);
+    pinMode(FAN_PIN, OUTPUT);
 }
 
 void loop()
 {
+    client.poll();
 }
 
 void connectWiFi()
@@ -153,6 +204,10 @@ void connectWiFi()
 void connectWSServer()
 {
     client.onEvent(onEventsCallback);
+
+    // For message handling
+    client.onMessage(onMessageCallback);
+
     while (!client.connect(websocket_server_host, websocket_server_port, "/"))
     {
         delay(500);
@@ -187,21 +242,3 @@ void micTask(void *parameter)
         }
     }
 }
-
-// void micTask(void *parameter)
-// {
-
-//     i2s_install();
-//     i2s_setpin();
-//     i2s_start(I2S_PORT);
-
-//     size_t bytesIn = 0;
-//     while (1)
-//     {
-//         esp_err_t result = i2s_read(I2S_PORT, &sBuffer, bufferLen, &bytesIn, portMAX_DELAY);
-//         if (result == ESP_OK && isWebSocketConnected)
-//         {
-//             client.sendBinary((const char *)sBuffer, bytesIn);
-//         }
-//     }
-// }

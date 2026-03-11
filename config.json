@@ -1,0 +1,14 @@
+{
+  "Appliance 1": {
+    "name": "Air Conditioner",
+    "power": 1500,
+    "Type": "AC",
+    "Behaviour": "ON_ON_SITTING"
+  },
+  "Appliance 2": {
+    "name": "TV",
+    "power": 100,
+    "Type": "TV",
+    "Behaviour": "ON_ON_SITTING"
+  }
+}

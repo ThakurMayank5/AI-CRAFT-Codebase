@@ -40,6 +40,11 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("Received audio bytes:", len(data))
 		}
 
+		// send this message
+		// light:true
+
+		conn.WriteMessage(websocket.TextMessage, []byte("light:true"))
+
 		file.Write(data)
 	}
 }

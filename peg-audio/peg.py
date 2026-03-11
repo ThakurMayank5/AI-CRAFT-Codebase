@@ -8,7 +8,7 @@ PORT = 42069
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 AUDIO_RAW = os.path.join(SCRIPT_DIR, "audio.raw")
 AUDIO_WAV = os.path.join(SCRIPT_DIR, "output.wav")
-TRANSCRIBE_INTERVAL = 8  # seconds between transcription attempts
+TRANSCRIBE_INTERVAL = 3  # seconds between transcription attempts
 
 model = whisper.load_model("base")
 
